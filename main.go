@@ -16,32 +16,24 @@ func main() {
 	if command.tail {
 		tail(svc, command)
 	} else {
-		readAndPrintLogItems(svc, command, "")
+		readAndPrintLogItems(svc, command, nil)
 	}
 }
 
 func tail(svc *cloudwatchlogs.CloudWatchLogs, comm *command) {
-	var nextToken string
+	var nextToken *string
 
 	for {
-		fmt.Println("-----------------------")
-		nextToken := readAndPrintLogItems(svc, comm, nextToken)
-		if nextToken == "" {
-			break
+		nextToken, nextTime := readAndPrintLogItems(svc, comm, nextToken)
+		if nextToken == nil {
+			comm.start = time.Unix((nextTime+1)/1000, 0)
 		}
-		time.Sleep(5)
+		time.Sleep(5 * time.Second)
 	}
 }
 
 func readAndPrintLogItems(svc *cloudwatchlogs.CloudWatchLogs, comm *command,
-	nextToken string) string {
-
-	var nextTokenPtr *string
-	if nextToken == "" {
-		nextTokenPtr = nil
-	} else {
-		nextTokenPtr = &nextToken
-	}
+	nextToken *string) (*string, int64) {
 
 	params := &cloudwatchlogs.FilterLogEventsInput{
 		LogGroupName: aws.String(comm.logGroupName),
@@ -53,8 +45,8 @@ func readAndPrintLogItems(svc *cloudwatchlogs.CloudWatchLogs, comm *command,
 		//  aws.String("LogStreamName"), // Required
 		// More values...
 		//},
-		NextToken: nextTokenPtr,
-		StartTime: aws.Int64(comm.start),
+		NextToken: nextToken,
+		StartTime: aws.Int64(comm.start.UTC().Unix() * 1000),
 	}
 	resp, err := svc.FilterLogEvents(params)
 
@@ -62,17 +54,16 @@ func readAndPrintLogItems(svc *cloudwatchlogs.CloudWatchLogs, comm *command,
 		// Print the error, cast err to awserr.Error to get the Code and
 		// Message from an error.
 		fmt.Println(err.Error())
-		return ""
+		return nil, 0
 	}
 
 	printLogItems(resp.Events)
 
-	return *resp.NextToken
+	return resp.NextToken, *resp.Events[len(resp.Events)-1].Timestamp
 }
 
 func printLogItems(events []*cloudwatchlogs.FilteredLogEvent) {
-	for i := range events {
-		event := events[len(events)-i-1]
+	for _, event := range events {
 		fmt.Printf("%v\n", *event.Message)
 	}
 }
