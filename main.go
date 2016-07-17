@@ -26,9 +26,9 @@ func tail(svc *cloudwatchlogs.CloudWatchLogs, comm *command) {
 	for {
 		nextToken, nextTime := readAndPrintLogItems(svc, comm, nextToken)
 		if nextToken == nil {
-			comm.start = time.Unix((nextTime+1)/1000, 0)
+			comm.start = time.Unix(nextTime/1000, 0)
 		}
-		time.Sleep(5 * time.Second)
+		time.Sleep(time.Duration(comm.refresh) * time.Second)
 	}
 }
 

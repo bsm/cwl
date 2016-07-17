@@ -13,6 +13,7 @@ type command struct {
 	start        time.Time
 	limit        int64
 	tail         bool
+	refresh      int64
 	interleaved  bool
 	help         bool
 }
@@ -27,6 +28,7 @@ func parseCommand() *command {
 	flag.StringVar(&startParam, "start", "1 minute ago", "The RFC3339 time that log events should start from")
 	flag.Int64Var(&command.limit, "limit", 50, "Number of messages to request")
 	flag.BoolVar(&command.tail, "tail", false, "Read log messages continuously")
+	flag.Int64Var(&command.refresh, "refresh", 5, "Refresh rate for tailing logs, in seconds.")
 	flag.BoolVar(&command.interleaved, "interleaved", true, "Interleave log messages between sources")
 	flag.Parse()
 
