@@ -22,8 +22,7 @@ func readAndPrintLogItems(svc *cloudwatchlogs.CloudWatchLogs, comm *command,
 	nextToken *string) *string {
 
 	params := &cloudwatchlogs.FilterLogEventsInput{
-		LogGroupName: aws.String(comm.logGroupName),
-		//EndTime:       aws.Int64(1),
+		LogGroupName:  aws.String(comm.logGroupName),
 		FilterPattern: aws.String(comm.filter),
 		Interleaved:   aws.Bool(comm.interleaved),
 		Limit:         aws.Int64(comm.limit),
@@ -33,6 +32,7 @@ func readAndPrintLogItems(svc *cloudwatchlogs.CloudWatchLogs, comm *command,
 		//},
 		NextToken: nextToken,
 		StartTime: aws.Int64(comm.start.UTC().Unix() * 1000),
+		EndTime:   aws.Int64(comm.end.UTC().Unix() * 1000),
 	}
 	resp, err := svc.FilterLogEvents(params)
 
