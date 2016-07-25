@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -13,34 +12,21 @@ func main() {
 	command := parseCommand()
 	svc := cloudwatchlogs.New(session.New(&aws.Config{Region: aws.String(command.region)}))
 
-	if command.tail {
-		tail(svc, command)
-	} else {
-		readAndPrintLogItems(svc, command, nil)
-	}
-}
-
-func tail(svc *cloudwatchlogs.CloudWatchLogs, comm *command) {
-	var nextToken *string
-
-	for {
-		nextToken, nextTime := readAndPrintLogItems(svc, comm, nextToken)
-		if nextToken == nil {
-			comm.start = time.Unix(nextTime/1000, 0)
-		}
-		time.Sleep(time.Duration(comm.refresh) * time.Second)
+	nextToken := readAndPrintLogItems(svc, command, nil)
+	for nextToken != nil {
+		nextToken = readAndPrintLogItems(svc, command, nextToken)
 	}
 }
 
 func readAndPrintLogItems(svc *cloudwatchlogs.CloudWatchLogs, comm *command,
-	nextToken *string) (*string, int64) {
+	nextToken *string) *string {
 
 	params := &cloudwatchlogs.FilterLogEventsInput{
 		LogGroupName: aws.String(comm.logGroupName),
 		//EndTime:       aws.Int64(1),
-		//FilterPattern: aws.String("FilterPattern"),
-		Interleaved: aws.Bool(comm.interleaved),
-		Limit:       aws.Int64(comm.limit),
+		FilterPattern: aws.String(comm.filter),
+		Interleaved:   aws.Bool(comm.interleaved),
+		Limit:         aws.Int64(comm.limit),
 		//LogStreamNames: []*string{
 		//  aws.String("LogStreamName"), // Required
 		// More values...
@@ -54,12 +40,12 @@ func readAndPrintLogItems(svc *cloudwatchlogs.CloudWatchLogs, comm *command,
 		// Print the error, cast err to awserr.Error to get the Code and
 		// Message from an error.
 		fmt.Println(err.Error())
-		return nil, 0
+		return nil
 	}
 
 	printLogItems(resp.Events)
 
-	return resp.NextToken, *resp.Events[len(resp.Events)-1].Timestamp
+	return resp.NextToken
 }
 
 func printLogItems(events []*cloudwatchlogs.FilteredLogEvent) {
