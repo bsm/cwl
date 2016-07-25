@@ -5,17 +5,27 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 )
 
 func main() {
 	command := parseCommand()
+
+	config := &aws.Config{Region: aws.String(command.region)}
 	if command.profile != "" {
-		os.Setenv("AWS_PROFILE", command.profile)
+		cred := credentials.NewSharedCredentials("", command.profile)
+		_, err := cred.Get()
+		if err != nil {
+			fmt.Printf("Error: Could not retreive profile `%s` from credentials.\n", command.profile)
+			os.Exit(-1)
+		}
+
+		config.Credentials = cred
 	}
 
-	svc := cloudwatchlogs.New(session.New(&aws.Config{Region: aws.String(command.region)}))
+	svc := cloudwatchlogs.New(session.New(config))
 
 	nextToken := readAndPrintLogItems(svc, command, nil)
 	for nextToken != nil {
