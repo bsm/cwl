@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -10,6 +11,10 @@ import (
 
 func main() {
 	command := parseCommand()
+	if command.profile != "" {
+		os.Setenv("AWS_PROFILE", command.profile)
+	}
+
 	svc := cloudwatchlogs.New(session.New(&aws.Config{Region: aws.String(command.region)}))
 
 	nextToken := readAndPrintLogItems(svc, command, nil)
