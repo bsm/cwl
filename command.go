@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"regexp"
+	"strconv"
 	"time"
 )
 
@@ -48,31 +50,21 @@ func parseCommand() *command {
 		usage()
 	}
 
-	if startParam == "1 minute ago" {
-		command.start = time.Now().Add(-1 * time.Minute)
-	} else {
-		startTime, err := time.Parse(time.RFC3339, startParam)
-
-		if err != nil {
-			fmt.Printf("Start time must be given in RFC 3339 time: %s\n", time.Now().Format(time.RFC3339))
-			fmt.Println()
-			usage()
-		}
-		command.start = startTime
+	startTime, err := parseTime(startParam)
+	if err != nil {
+		fmt.Printf("Could not parse start time.\n")
+		fmt.Println()
+		usage()
 	}
+	command.start = startTime
 
-	if endParam == "now" {
-		command.end = time.Now()
-	} else {
-		endTime, err := time.Parse(time.RFC3339, endParam)
-
-		if err != nil {
-			fmt.Printf("End time must be given in RFC 3339 time: %s\n", time.Now().Format(time.RFC3339))
-			fmt.Println()
-			usage()
-		}
-		command.end = endTime
+	endTime, err := parseTime(endParam)
+	if err != nil {
+		fmt.Printf("Could not parse end time.\n")
+		fmt.Println()
+		usage()
 	}
+	command.end = endTime
 
 	return command
 }
@@ -83,4 +75,43 @@ func usage() {
 	fmt.Println("Parameters:")
 	flag.PrintDefaults()
 	os.Exit(-1)
+}
+
+// Parses a time string into something reasonable
+func parseTime(timeString string) (time.Time, error) {
+	if timeString == "now" {
+		return time.Now(), nil
+	}
+
+	// handle fuzzy time strings
+	re := regexp.MustCompile("([0-9]+)\\s+(second|minute|hour|day)s?\\s+ago")
+	matches := re.FindStringSubmatch(timeString)
+	if len(matches) == 3 {
+		value, err := strconv.ParseInt(matches[1], 10, 64)
+		if err != nil {
+			return time.Now(), err
+		}
+
+		var duration time.Duration
+		switch matches[2] {
+		case "second":
+			duration = time.Second
+		case "minute":
+			duration = time.Minute
+		case "hour":
+			duration = time.Hour
+		case "day":
+			duration = time.Hour * 24
+		default:
+			return time.Now(), fmt.Errorf("Unknown time unit, %s", matches[2])
+		}
+
+		return time.Now().Add(-1 * time.Duration(value) * duration), nil
+	}
+
+	rfcTime, err := time.Parse(time.RFC3339, timeString)
+	if err != nil {
+		return time.Now(), err
+	}
+	return rfcTime, nil
 }
