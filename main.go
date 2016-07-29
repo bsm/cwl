@@ -36,18 +36,20 @@ func main() {
 func readAndPrintLogItems(svc *cloudwatchlogs.CloudWatchLogs, comm *command,
 	nextToken *string) *string {
 
+	var streamPtrs []*string
+	for _, stream := range comm.streams {
+		streamPtrs = append(streamPtrs, &stream)
+	}
+
 	params := &cloudwatchlogs.FilterLogEventsInput{
-		LogGroupName:  aws.String(comm.logGroupName),
-		FilterPattern: aws.String(comm.filter),
-		Interleaved:   aws.Bool(comm.interleaved),
-		Limit:         aws.Int64(comm.limit),
-		//LogStreamNames: []*string{
-		//  aws.String("LogStreamName"), // Required
-		// More values...
-		//},
-		NextToken: nextToken,
-		StartTime: aws.Int64(comm.start.UTC().Unix() * 1000),
-		EndTime:   aws.Int64(comm.end.UTC().Unix() * 1000),
+		LogGroupName:   aws.String(comm.logGroupName),
+		FilterPattern:  aws.String(comm.filter),
+		Interleaved:    aws.Bool(comm.interleaved),
+		Limit:          aws.Int64(comm.limit),
+		LogStreamNames: streamPtrs,
+		NextToken:      nextToken,
+		StartTime:      aws.Int64(comm.start.UTC().Unix() * 1000),
+		EndTime:        aws.Int64(comm.end.UTC().Unix() * 1000),
 	}
 	resp, err := svc.FilterLogEvents(params)
 
@@ -65,6 +67,6 @@ func readAndPrintLogItems(svc *cloudwatchlogs.CloudWatchLogs, comm *command,
 
 func printLogItems(events []*cloudwatchlogs.FilteredLogEvent) {
 	for _, event := range events {
-		fmt.Printf("%v\n", *event.Message)
+		fmt.Printf("%v| %v\n", *event.LogStreamName, *event.Message)
 	}
 }

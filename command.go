@@ -6,6 +6,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -21,18 +22,21 @@ type command struct {
 	refresh      int64
 	interleaved  bool
 	help         bool
+	streams      []string
 }
 
 // ParseCommand parses the command line and creates a new command to run.
 func parseCommand() *command {
 	startParam := "1 minute ago"
 	endParam := "now"
+	streamParam := ""
 
 	command := &command{interleaved: true, limit: 50, tail: false}
 
 	flag.StringVar(&command.profile, "profile", "", "AWS credential profile to use.")
 	flag.StringVar(&command.region, "region", "", "AWS region to request logs from")
 	flag.StringVar(&command.logGroupName, "group", "", "Log group name to read from")
+	flag.StringVar(&streamParam, "streams", "", "List of streams, comma separated.")
 	flag.StringVar(&command.filter, "filter", "", "Filter pattern to appy")
 	flag.StringVar(&startParam, "start", "1 minute ago", "The RFC3339 time that log events should start from")
 	flag.StringVar(&endParam, "end", "now", "The RFC3339 time that log events should end")
@@ -65,6 +69,8 @@ func parseCommand() *command {
 		usage()
 	}
 	command.end = endTime
+
+	command.streams = strings.Split(streamParam, ",")
 
 	return command
 }
