@@ -15,7 +15,7 @@ CWL expects that you have your AWS credentials be configured in one of the stand
 ### Credentials File
 
 Create an INI file at `~/.aws/credentials`. Each section of the INI file represents a different credentials profile. The default
-profile will be used by default. See the -profile parameter to choose a different profile.
+profile will be used by default. See the [-profile parameter](#-profile-AWS_PROFILE) to choose a different profile.
 
 Example credentials file:
 
@@ -61,11 +61,11 @@ Filters the log events with the given filter. See [Filter and Pattern Syntax](ht
 
 ### -start TIME
 
-Specifies start time. Defaults to "1 minute ago". See specifying times for more information about time parameter formats.
+Specifies start time. Defaults to "1 minute ago". See [specifying times](#specifying-times) for more information about time parameter formats.
 
 ### -end TIME
 
-Specifies end time. Defaults to the current time. See specifying times for more information about time parameter formats.
+Specifies end time. Defaults to the current time. See [specifying times](#specifying-times) for more information about time parameter formats.
 
 ### -fullStreamNames
 
