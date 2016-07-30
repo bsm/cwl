@@ -70,7 +70,9 @@ func parseCommand() *command {
 	}
 	command.end = endTime
 
-	command.streams = strings.Split(streamParam, ",")
+	if streamParam != "" {
+		command.streams = strings.Split(streamParam, ",")
+	}
 
 	return command
 }

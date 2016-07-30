@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
+	"github.com/fatih/color"
 )
 
 func main() {
@@ -36,21 +37,24 @@ func main() {
 func readAndPrintLogItems(svc *cloudwatchlogs.CloudWatchLogs, comm *command,
 	nextToken *string) *string {
 
-	var streamPtrs []*string
-	for _, stream := range comm.streams {
-		streamPtrs = append(streamPtrs, &stream)
+	params := &cloudwatchlogs.FilterLogEventsInput{
+		LogGroupName:  aws.String(comm.logGroupName),
+		FilterPattern: aws.String(comm.filter),
+		Interleaved:   aws.Bool(comm.interleaved),
+		Limit:         aws.Int64(comm.limit),
+		NextToken:     nextToken,
+		StartTime:     aws.Int64(comm.start.UTC().Unix() * 1000),
+		EndTime:       aws.Int64(comm.end.UTC().Unix() * 1000),
 	}
 
-	params := &cloudwatchlogs.FilterLogEventsInput{
-		LogGroupName:   aws.String(comm.logGroupName),
-		FilterPattern:  aws.String(comm.filter),
-		Interleaved:    aws.Bool(comm.interleaved),
-		Limit:          aws.Int64(comm.limit),
-		LogStreamNames: streamPtrs,
-		NextToken:      nextToken,
-		StartTime:      aws.Int64(comm.start.UTC().Unix() * 1000),
-		EndTime:        aws.Int64(comm.end.UTC().Unix() * 1000),
+	if len(comm.streams) > 0 {
+		var streamPtrs []*string
+		for _, stream := range comm.streams {
+			streamPtrs = append(streamPtrs, &stream)
+		}
+		params.LogStreamNames = streamPtrs
 	}
+
 	resp, err := svc.FilterLogEvents(params)
 
 	if err != nil {
@@ -65,8 +69,30 @@ func readAndPrintLogItems(svc *cloudwatchlogs.CloudWatchLogs, comm *command,
 	return resp.NextToken
 }
 
+var (
+	colors       = make(map[string]color.Attribute)
+	colorOptions = []color.Attribute{
+		color.FgRed,
+		color.FgGreen,
+		color.FgYellow,
+		color.FgBlue,
+		color.FgMagenta,
+		color.FgCyan,
+	}
+)
+
 func printLogItems(events []*cloudwatchlogs.FilteredLogEvent) {
+
 	for _, event := range events {
-		fmt.Printf("%v| %v\n", *event.LogStreamName, *event.Message)
+		colorAttr, ok := colors[*event.LogStreamName]
+		if !ok {
+			colorAttr = colorOptions[len(colors)%len(colorOptions)]
+			colors[*event.LogStreamName] = colorAttr
+		}
+
+		c := color.New(colorAttr)
+
+		c.Printf("%v|", *event.LogStreamName)
+		fmt.Printf(" %v\n", *event.Message)
 	}
 }
