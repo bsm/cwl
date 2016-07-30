@@ -11,18 +11,19 @@ import (
 )
 
 type command struct {
-	profile      string
-	region       string
-	logGroupName string
-	filter       string
-	start        time.Time
-	end          time.Time
-	limit        int64
-	tail         bool
-	refresh      int64
-	interleaved  bool
-	help         bool
-	streams      []string
+	profile        string
+	region         string
+	logGroupName   string
+	filter         string
+	start          time.Time
+	end            time.Time
+	limit          int64
+	tail           bool
+	refresh        int64
+	interleaved    bool
+	help           bool
+	streams        []string
+	fullStreamName bool
 }
 
 // ParseCommand parses the command line and creates a new command to run.
@@ -37,13 +38,13 @@ func parseCommand() *command {
 	flag.StringVar(&command.region, "region", "", "AWS region to request logs from")
 	flag.StringVar(&command.logGroupName, "group", "", "Log group name to read from")
 	flag.StringVar(&streamParam, "streams", "", "List of streams, comma separated.")
-	flag.StringVar(&command.filter, "filter", "", "Filter pattern to appy")
+	flag.StringVar(&command.filter, "filter", "", "Filter pattern to apply")
 	flag.StringVar(&startParam, "start", "1 minute ago", "The RFC3339 time that log events should start from")
 	flag.StringVar(&endParam, "end", "now", "The RFC3339 time that log events should end")
 
-	flag.BoolVar(&command.tail, "tail", false, "Read log messages continuously")
-	flag.Int64Var(&command.refresh, "refresh", 5, "Refresh rate for tailing logs, in seconds.")
-	flag.BoolVar(&command.interleaved, "interleaved", true, "Interleave log messages between sources")
+	//flag.BoolVar(&command.tail, "tail", false, "Read log messages continuously")
+	//flag.Int64Var(&command.refresh, "refresh", 5, "Refresh rate for tailing logs, in seconds.")
+	flag.BoolVar(&command.fullStreamName, "fullStreamName", false, "Display full stream names.")
 	flag.Parse()
 
 	if command.help {

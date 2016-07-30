@@ -92,7 +92,9 @@ func printLogItems(events []*cloudwatchlogs.FilteredLogEvent) {
 
 		c := color.New(colorAttr)
 
-		c.Printf("%v|", *event.LogStreamName)
+		shortStream := []rune(*event.LogStreamName)[0:10]
+
+		c.Printf("%v|", string(shortStream))
 		fmt.Printf(" %v\n", *event.Message)
 	}
 }
