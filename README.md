@@ -8,6 +8,16 @@ be processed with another tool like `jq`, it's a bit of a pain.
 `cwl` tries to make working with AWS CloudWatch logs as easy as
 possible by simplifying the parameters and choosing sane defaults.
 
+## Installing
+
+For now, the best way to install is with `go get`:
+
+```
+go get github.com/commondream/cwl
+```
+
+You'll need a fully setup Golang toolchain to do so. See the [Golang Getting Started](https://golang.org/doc/install) guide for more information.
+
 ## Configuring
 
 CWL expects that you have your AWS credentials be configured in one of the standard ways - either with an AWS credentials file or with environment variables. You can read more about standard credential formats for AWS in the  [SDK documentation](http://docs.aws.amazon.com/sdk-for-go/latest/v1/developerguide/configuring-sdk.title.html).
