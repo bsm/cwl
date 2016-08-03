@@ -1,2 +1,4 @@
 # Ignore the binary
 cwl
+
+dist/

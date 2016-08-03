@@ -36,11 +36,12 @@ func main() {
 
 func readAndPrintLogItems(svc *cloudwatchlogs.CloudWatchLogs, comm *command,
 	nextToken *string) *string {
+	interleaved := true
 
 	params := &cloudwatchlogs.FilterLogEventsInput{
 		LogGroupName:  aws.String(comm.logGroupName),
 		FilterPattern: aws.String(comm.filter),
-		Interleaved:   aws.Bool(comm.interleaved),
+		Interleaved:   &interleaved,
 		Limit:         aws.Int64(comm.limit),
 		NextToken:     nextToken,
 		StartTime:     aws.Int64(comm.start.UTC().Unix() * 1000),
@@ -64,7 +65,7 @@ func readAndPrintLogItems(svc *cloudwatchlogs.CloudWatchLogs, comm *command,
 		return nil
 	}
 
-	printLogItems(resp.Events)
+	printLogItems(comm, resp.Events)
 
 	return resp.NextToken
 }
@@ -81,7 +82,7 @@ var (
 	}
 )
 
-func printLogItems(events []*cloudwatchlogs.FilteredLogEvent) {
+func printLogItems(command *command, events []*cloudwatchlogs.FilteredLogEvent) {
 
 	for _, event := range events {
 		colorAttr, ok := colors[*event.LogStreamName]
@@ -92,7 +93,10 @@ func printLogItems(events []*cloudwatchlogs.FilteredLogEvent) {
 
 		c := color.New(colorAttr)
 
-		shortStream := []rune(*event.LogStreamName)[0:10]
+		shortStream := []rune(*event.LogStreamName)
+		if !command.fullStreamName {
+			shortStream = shortStream[0:10]
+		}
 
 		c.Printf("%v|", string(shortStream))
 		fmt.Printf(" %v\n", *event.Message)

@@ -20,7 +20,6 @@ type command struct {
 	limit          int64
 	tail           bool
 	refresh        int64
-	interleaved    bool
 	help           bool
 	streams        []string
 	fullStreamName bool
@@ -32,7 +31,7 @@ func parseCommand() *command {
 	endParam := "now"
 	streamParam := ""
 
-	command := &command{interleaved: true, limit: 50, tail: false}
+	command := &command{limit: 50, tail: false}
 
 	flag.StringVar(&command.profile, "profile", "", "AWS credential profile to use.")
 	flag.StringVar(&command.region, "region", "", "AWS region to request logs from")
