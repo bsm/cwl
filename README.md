@@ -10,10 +10,10 @@ possible by simplifying the parameters and choosing sane defaults.
 
 ## Installing
 
-For now, the best way to install is with `go get`:
+For now, the best way to install the latest stable version is with `go get`:
 
 ```
-go get github.com/commondream/cwl
+go get http://gopkg.in/commondream/cwl.v1
 ```
 
 You'll need a fully setup Golang toolchain to do so. See the [Golang Getting Started](https://golang.org/doc/install) guide for more information.
