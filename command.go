@@ -40,9 +40,6 @@ func parseCommand() *command {
 	flag.StringVar(&command.filter, "filter", "", "Filter pattern to apply")
 	flag.StringVar(&startParam, "start", "1 minute ago", "The RFC3339 time that log events should start from")
 	flag.StringVar(&endParam, "end", "now", "The RFC3339 time that log events should end")
-
-	//flag.BoolVar(&command.tail, "tail", false, "Read log messages continuously")
-	//flag.Int64Var(&command.refresh, "refresh", 5, "Refresh rate for tailing logs, in seconds.")
 	flag.BoolVar(&command.fullStreamName, "fullStreamName", false, "Display full stream names.")
 	flag.Parse()
 
