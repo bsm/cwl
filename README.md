@@ -77,9 +77,9 @@ Specifies start time. Defaults to "1 minute ago". See [specifying times](#specif
 
 Specifies end time. Defaults to the current time. See [specifying times](#specifying-times) for more information about time parameter formats.
 
-### -fullStreamNames
+### -abv N
 
-By default CWL only displays the first 10 characters of each stream name. This parameter tells CWL to display the full stream name.
+Abbreviate stream names to a maximum of N characters. Defaults to 10.
 
 ### Specifying Times
 

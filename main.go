@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -71,7 +72,7 @@ func readAndPrintLogItems(svc *cloudwatchlogs.CloudWatchLogs, comm *command,
 }
 
 var (
-	colors       = make(map[string]color.Attribute)
+	colors       = make(map[string]*color.Color)
 	colorOptions = []color.Attribute{
 		color.FgRed,
 		color.FgGreen,
@@ -83,22 +84,23 @@ var (
 )
 
 func printLogItems(command *command, events []*cloudwatchlogs.FilteredLogEvent) {
-
 	for _, event := range events {
-		colorAttr, ok := colors[*event.LogStreamName]
+		stream := *event.LogStreamName
+		if pos := strings.LastIndexByte(stream, '/'); pos < len(stream) {
+			stream = stream[:pos]
+		}
+
+		c, ok := colors[stream]
 		if !ok {
-			colorAttr = colorOptions[len(colors)%len(colorOptions)]
-			colors[*event.LogStreamName] = colorAttr
+			c = color.New(colorOptions[len(colors)%len(colorOptions)])
+			colors[stream] = c
 		}
 
-		c := color.New(colorAttr)
-
-		shortStream := []rune(*event.LogStreamName)
-		if !command.fullStreamName {
-			shortStream = shortStream[0:10]
+		if n := int(command.abv); n < len(stream) {
+			stream = stream[:n]
 		}
 
-		c.Printf("%v|", string(shortStream))
-		fmt.Printf(" %v\n", *event.Message)
+		c.Print(stream + "| ")
+		fmt.Print(*event.Message + "\n")
 	}
 }

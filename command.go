@@ -11,18 +11,18 @@ import (
 )
 
 type command struct {
-	profile        string
-	region         string
-	logGroupName   string
-	filter         string
-	start          time.Time
-	end            time.Time
-	limit          int64
-	tail           bool
-	refresh        int64
-	help           bool
-	streams        []string
-	fullStreamName bool
+	profile      string
+	region       string
+	logGroupName string
+	filter       string
+	start        time.Time
+	end          time.Time
+	limit        int64
+	tail         bool
+	refresh      int64
+	help         bool
+	streams      []string
+	abv          uint
 }
 
 // ParseCommand parses the command line and creates a new command to run.
@@ -34,13 +34,13 @@ func parseCommand() *command {
 	command := &command{limit: 50, tail: false}
 
 	flag.StringVar(&command.profile, "profile", "", "AWS credential profile to use.")
-	flag.StringVar(&command.region, "region", "", "AWS region to request logs from")
+	flag.StringVar(&command.region, "region", "us-east-1", "AWS region to request logs from")
 	flag.StringVar(&command.logGroupName, "group", "", "Log group name to read from")
 	flag.StringVar(&streamParam, "streams", "", "List of streams, comma separated.")
 	flag.StringVar(&command.filter, "filter", "", "Filter pattern to apply")
 	flag.StringVar(&startParam, "start", "1 minute ago", "The RFC3339 time that log events should start from")
 	flag.StringVar(&endParam, "end", "now", "The RFC3339 time that log events should end")
-	flag.BoolVar(&command.fullStreamName, "fullStreamName", false, "Display full stream names.")
+	flag.UintVar(&command.abv, "abv", 10, "Abbreviate streams names to N characters")
 	flag.Parse()
 
 	if command.help {
