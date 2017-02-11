@@ -1,0 +1,8 @@
+*.json
+*_test.go
+awstesting/
+testdata/
+_example/
+doc-src/
+example/
+awsmigrate/

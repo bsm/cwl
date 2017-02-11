@@ -1,0 +1,46 @@
+hash: fc17dc46e867b93c1841e646f1b356f4eeabc50f7057f73f4008787d14597504
+updated: 2017-02-11T08:56:40.274369696Z
+imports:
+- name: github.com/aws/aws-sdk-go
+  version: f615b0905b52177eb0efa0fe59340c05c0ea0ed9
+  subpackages:
+  - aws
+  - aws/awserr
+  - aws/awsutil
+  - aws/client
+  - aws/client/metadata
+  - aws/corehandlers
+  - aws/credentials
+  - aws/credentials/ec2rolecreds
+  - aws/credentials/endpointcreds
+  - aws/credentials/stscreds
+  - aws/defaults
+  - aws/ec2metadata
+  - aws/endpoints
+  - aws/request
+  - aws/session
+  - aws/signer/v4
+  - private/protocol
+  - private/protocol/json/jsonutil
+  - private/protocol/jsonrpc
+  - private/protocol/query
+  - private/protocol/query/queryutil
+  - private/protocol/rest
+  - private/protocol/xml/xmlutil
+  - service/cloudwatchlogs
+  - service/sts
+- name: github.com/fatih/color
+  version: 5ec5d9d3c2cf82e9688b34e9bc27a94d616a7193
+- name: github.com/go-ini/ini
+  version: 2ba15ac2dc9cdf88c110ec2dc0ced7fa45f5678c
+- name: github.com/jmespath/go-jmespath
+  version: bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d
+- name: github.com/mattn/go-colorable
+  version: 5411d3eea5978e6cdc258b30de592b60df6aba96
+- name: github.com/mattn/go-isatty
+  version: 281032e84ae07510239465db46bf442aa44b953a
+- name: golang.org/x/sys
+  version: d75a52659825e75fff6158388dddc6a5b04f9ba5
+  subpackages:
+  - unix
+testImports: []
