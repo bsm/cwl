@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
+	"regexp"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -81,14 +81,14 @@ var (
 		color.FgMagenta,
 		color.FgCyan,
 	}
+
+	uuidSuffix = regexp.MustCompile(`/[A-Fa-f0-9\-]+$`)
 )
 
 func printLogItems(command *command, events []*cloudwatchlogs.FilteredLogEvent) {
 	for _, event := range events {
 		stream := *event.LogStreamName
-		if pos := strings.LastIndexByte(stream, '/'); pos < len(stream) {
-			stream = stream[:pos]
-		}
+		stream = uuidSuffix.ReplaceAllString(stream, "")
 
 		c, ok := colors[stream]
 		if !ok {
